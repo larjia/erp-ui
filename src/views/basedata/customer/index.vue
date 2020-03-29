@@ -1,10 +1,10 @@
 <template>
-  <h1>base data index view</h1>
+    <h1>Customer index view</h1>
 </template>
 
 <script>
 export default {
-  name: 'BaseData'
+  name: 'Customer'
 }
 </script>
 
