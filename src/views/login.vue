@@ -7,7 +7,7 @@
       class="login-form"
     >
       <h3 class="title">
-        Winkelmann SWL在线报工系统
+        桶装水进销存系统
       </h3>
 
       <el-form-item prop="username">

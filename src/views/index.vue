@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-editor-container">
-    <h3>欢迎来到SWL报表中心</h3>
+    <h3>欢迎来到桶装水进销存系统</h3>
   </div>
 </template>
 
