@@ -7,7 +7,7 @@
       class="login-form"
     >
       <h3 class="title">
-        桶装水进销存系统
+        欢迎回来
       </h3>
 
       <el-form-item prop="username">
