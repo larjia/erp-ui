@@ -41,7 +41,7 @@
         </el-input>
       </el-form-item>
 
-      <el-form-item prop="code">
+      <el-form-item prop="code" v-if="showCaptcha">
         <el-input
           v-model="loginForm.code"
           auto-complete="off"
@@ -94,7 +94,8 @@
 <script>
 import { getCodeImg } from '@/api/login'
 import Cookies from 'js-cookie'
-import { encrypt, decrpty } from '@/utils/jsencrypt'
+import { encrypt, decrypt } from '@/utils/jsencrypt'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Login',
@@ -136,6 +137,11 @@ export default {
     this.getCode()
     this.getCookie()
   },
+  computed: {
+    ...mapState({
+      showCaptcha: state => state.settings.showCaptcha
+    })
+  },
   methods: {
     getCode () {
       getCodeImg().then(res => {
@@ -149,7 +155,7 @@ export default {
       const rememberMe = Cookies.get('rememberMe')
       this.loginForm = {
         username: username === undefined ? this.loginForm.username : username,
-        password: password === undefined ? this.loginForm.password : decrpty(password),
+        password: password === undefined ? this.loginForm.password : decrypt(password),
         rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
       }
     },
