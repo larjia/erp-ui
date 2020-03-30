@@ -166,8 +166,8 @@ export default {
           this.loading = true
           if (this.loginForm.rememberMe) {
             Cookies.set('username', this.loginForm.username, { expires: 30 })
-            Cookies.set('password', encrypt(this.loginForm.username), { expires: 30 })
-            Cookies.set('rememberMe', this.loginForm.username, { expires: 30 })
+            Cookies.set('password', encrypt(this.loginForm.password), { expires: 30 })
+            Cookies.set('rememberMe', this.loginForm.rememberMe, { expires: 30 })
           } else {
             Cookies.remove('username')
             Cookies.remove('password')
