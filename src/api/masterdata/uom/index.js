@@ -38,9 +38,9 @@ export function updateUOM (data) {
   })
 }
 
-export function deleteUOMById (id) {
+export function deleteUOMByIds (ids) {
   return request({
-    url: '/masterdata/uom/' + id,
+    url: '/masterdata/uom/' + ids,
     method: 'delete'
   })
 }
