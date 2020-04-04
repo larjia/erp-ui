@@ -76,7 +76,8 @@
       <el-dialog :title="title" :visible.sync="open" width="600px">
         <el-form ref="form" :model="form" :rules="rules" label-width="80px">
           <el-row>
-            <el-col :span="24" v-if="form.parentId !== 0">
+            <!-- <el-col :span="24" v-if="form.parentId !== 0"> -->
+            <el-col :span="24">
               <el-form-item label="上级分类" prop="parentId">
                 <treeselect v-model="form.parentId" :options="typeOptions" :normalizer="normalizer" />
               </el-form-item>
@@ -143,7 +144,15 @@ export default {
       form: {},
       // 表单校验
       rules: {
-
+        number: [
+          { required: true, message: '编码不能为空', trigger: 'blur' }
+        ],
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'blur' }
+        ],
+        orderNum: [
+          { required: true, message: '显示排序不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -190,6 +199,9 @@ export default {
       this.getTreeselect()
       getPartTypeById(row.id).then(response => {
         this.form = response.data
+        if (this.form.parentId === 0) {
+          this.form.parentId = undefined
+        }
         this.open = true
         this.title = '修改物料类别'
       })
