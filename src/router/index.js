@@ -81,6 +81,17 @@ export const constantRoutes = [
       }
     ]
   }
+  // {
+  //   path: '/masterdata/supplier',
+  //   component: Layout,
+  //   redirect: 'add',
+  //   children: [
+  //     {
+  //       path: 'add',
+  //       component: () => import('@/views/masterdata/supplier/AddSupplier'),
+  //     }
+  //   ]
+  // }
 ]
 
 const router = new VueRouter({
