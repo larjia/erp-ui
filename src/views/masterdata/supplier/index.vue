@@ -59,32 +59,304 @@
       <el-table-column prop="type" label="类别"></el-table-column>
       <el-table-column prop="bank" label="开户银行"></el-table-column>
       <el-table-column prop="bankAcct" label="银行账户"></el-table-column>
-      <el-table-column prop="taxIdNumber" label="纳税人识别号"></el-table-column>
+      <el-table-column prop="taxIdNumber" label="纳税识别号"></el-table-column>
       <el-table-column prop="acctPayable" label="应付账户"></el-table-column>
       <el-table-column prop="amtPayable" label="应付账款"></el-table-column>
       <el-table-column prop="amtPrePayment" label="预付账款"></el-table-column>
     </el-table>
+
+    <!-- 分页 -->
+    <pagination
+      v-show="total > 0"
+      :total='total'
+      :page.sync='queryParams.pageNum'
+      :limit.sync='queryParams.pageSize'
+      @pagination='getList'
+    />
+
+    <!-- 添加或修改报工对话框 -->
+    <el-dialog :title="title" :visible.sync="open" :close-on-click-modal="false" :close-on-press-escape="false"
+      width="1100px" class="dialog" top="3vh !important" @close="closeDialog" center>
+
+      <el-form ref="form" size="mini" :model="form" :rules="rules" label-width="90px">
+        <!-- 编码和名称 -->
+        <el-row>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="编码" prop="number">
+              <el-input v-model="form.number" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :xs="{span:24, offset:0}">
+            <el-form-item label="名称" prop="name">
+              <el-input v-model="form.name" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="类型" prop="type">
+              <el-input v-model="form.type" size="mini" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 地址 -->
+        <el-row>
+          <el-col :span="12" :xs="{span:24, offset:0}">
+            <el-form-item label="地址" prop="address">
+              <el-input v-model="form.address" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :xs="{span:24, offset:0}">
+            <el-form-item label="地址2" prop="address2">
+              <el-input v-model="form.address2" size="mini" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 国家、省份、城市 -->
+        <el-row>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="国家" prop="country">
+              <el-input v-model="form.country" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="省份" prop="state">
+              <el-input v-model="form.state" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="城市" prop="city">
+              <el-input v-model="form.city" size="mini" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 联系人、电话、邮箱、传真 -->
+        <el-row>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="联系人" prop="contact">
+              <el-input v-model="form.contact" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="电话" prop="phone">
+              <el-input v-model="form.phone" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="form.email" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="传真" prop="fax">
+              <el-input v-model="form.fax" size="mini" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 备注 -->
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="form.remark" size="mini" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 应纳税、含税、税率 -->
+        <el-row>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="应纳税" prop="taxable">
+              <el-checkbox v-model="form.taxable" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="含税" prop="taxin">
+              <el-checkbox v-model="form.taxin" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="税率%" prop="taxRate">
+              <el-input-number v-model="form.taxRate" size="mini" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 开户行、银行账户、纳税人识别号、应付账户 -->
+        <el-row>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="开户行" prop="bank">
+              <el-input v-model="form.bank" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="银行账户" prop="bankAcct">
+              <el-input v-model="form.bankAcct" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="纳税识别号" prop="taxIdNbr">
+              <el-input v-model="form.taxIdNbr" size="mini" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="应付账户" prop="acctPayable">
+              <el-input v-model="form.acctPayable" size="mini" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 应付账款、预付账款 -->
+        <el-row>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="应付账款" prop="amtPayable">
+              <el-input v-model="form.amtPayable" size="mini" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6" :xs="{span:24, offset:0}">
+            <el-form-item label="预付账款" prop="amtPrePayment">
+              <el-input v-model="form.amtPrePayment" size="mini" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submit">确定</el-button>
+        <el-button @click="cancel">取消</el-button>
+      </div>
+    </el-dialog>
+
 </div>
 </template>
 
 <script>
+import
+{
+  listSupplier,
+  getSupplierById,
+  addSupplier,
+  updateSupplier,
+  deleteSupplier
+}
+from '@/api/masterdata/supplier'
+
 export default {
   name: 'Supplier',
   data () {
     return {
+      // 遮罩层
+      loading: true,
+      // 表格数据
+      supplierList: [],
+      // 分类选项
+      typeOptions: [],
+      // 弹出层标题
+      title: '',
+      // 是否显示弹出层
+      open: false,
+      // 对话框是否为新增或修改
+      isNew: false,
+      // 查询参数
       queryParams: {
+        pageNum: 1,
+        pageSize: 10,
         number: undefined,
         name: undefined
+      },
+      // 总记录数(分页)
+      total: 0,
+      // 表单参数
+      form: {},
+      // 表单校验
+      rules: {
+        number: [
+          { required: true, message: '编码不能为空', trigger: 'blur' }
+        ],
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
+  created () {
+    this.getList()
+  },
   methods: {
+    /** 查询供应商列表 */
+    getList() {
+      this.loading = true
+      listSupplier(this.queryParams).then(response => {
+        this.supplierList = response.rows
+        this.loading = false
+      })
+    },
+    /** 搜索 */
+    handleQuery () {
+
+    },
+    /** 新增按钮操作 */
     handleAdd () {
+      this.isNew = true
+      this.reset()
+      this.open = true
+      this.title = '新增供应商'
+    },
+    /** 表单重置 */
+    reset () {
+      this.form = {
+        taxable: true,
+        taxin: false,
+        taxRate: 13,
+        number: '',
+        name: ''
+      }
+    },
+    /** 取消对话框 */
+    cancel () {
+      this.open = false
+      this.reset()
+    },
+    /** 关闭对话框 */
+    closeDialog () {
+      this.reset()
+    },
+    /** 点击确定按钮 */
+    submit () {
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          if (this.isNew) {   // 新增
+            addSupplier(this.form).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess('新增成功')
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
+          } else {            // 修改
+            
+          }
+        }
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+.app-container ::v-deep .el-dialog__body {
+  padding: 20px 25px 0 25px;
+}
 
+.app-container ::v-deep .el-dialog__header {
+  padding: 15px 25px 10px 25px;
+  background-color: #eee;
+}
+
+.app-container ::v-deep .el-dialog__headerBtn {
+  top: 15px;
+}
 </style>
