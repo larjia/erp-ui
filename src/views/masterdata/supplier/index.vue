@@ -19,19 +19,31 @@
       </el-form-item>
        <el-form-item>
           <el-button
-            class="filter-item"
             type='primary'
             icon="el-icon-search"
             size="mini"
             @click="handleQuery"
           >搜索</el-button>
           <el-button
-            class="filter-item"
             type='primary'
             icon="el-icon-plus"
             size="mini"
             @click="handleAdd"
           >新增</el-button>
+          <el-button
+            type="success"
+            icon="el-icon-edit"
+            size="mini"
+            @click="handleUpdate"
+            :disabled="!isSelected"
+          >修改</el-button>
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            @click="handleDelete"
+            :disabled="!isSelected"
+          >删除</el-button>
         </el-form-item>
     </el-form>
 
@@ -40,27 +52,38 @@
       :data='supplierList'
       row-key="id"
       border
+      highlight-current-row
+      @current-change='handleCurrentChange'
       size='mini'
     >
       <el-table-column prop="number" label="编码"></el-table-column>
-      <el-table-column prop="name" label="名称"></el-table-column>
-      <el-table-column prop="address" label="地址"></el-table-column>
-      <el-table-column prop="address2" label="地址2"></el-table-column>
+      <el-table-column prop="name" label="名称" width="250"></el-table-column>
+      <el-table-column prop="address" label="地址" width="360"></el-table-column>
+      <el-table-column prop="address2" label="地址2" width="100"></el-table-column>
       <el-table-column prop="country" label="国家"></el-table-column>
       <el-table-column prop="state" label="省份"></el-table-column>
+      <el-table-column prop="city" label="城市"></el-table-column>
       <el-table-column prop="contact" label="联系人"></el-table-column>
-      <el-table-column prop="phone" label="电话"></el-table-column>
-      <el-table-column prop="email" label="邮箱"></el-table-column>
-      <el-table-column prop="fax" label="传真"></el-table-column>
-      <el-table-column prop="remark" label="备注"></el-table-column>
-      <el-table-column prop="taxable" label="应纳税"></el-table-column>
-      <el-table-column prop="taxin" label="含税"></el-table-column>
+      <el-table-column prop="phone" label="电话" width="100"></el-table-column>
+      <el-table-column prop="email" label="邮箱" width="150"></el-table-column>
+      <el-table-column prop="fax" label="传真" width="100"></el-table-column>
+      <el-table-column prop="remark" label="备注" width="200"></el-table-column>
+      <el-table-column prop="taxable" label="应纳税">
+        <template slot-scope="scope">
+          <span>{{ scope.row.taxable | taxableFilter }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="taxin" label="含税">
+        <template slot-scope="scope">
+          <span>{{ scope.row.taxin | taxinFilter }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="taxRate" label="税率"></el-table-column>
       <el-table-column prop="type" label="类别"></el-table-column>
-      <el-table-column prop="bank" label="开户银行"></el-table-column>
-      <el-table-column prop="bankAcct" label="银行账户"></el-table-column>
-      <el-table-column prop="taxIdNumber" label="纳税识别号"></el-table-column>
-      <el-table-column prop="acctPayable" label="应付账户"></el-table-column>
+      <el-table-column prop="bank" label="开户银行" width="180"></el-table-column>
+      <el-table-column prop="bankAcct" label="银行账户" width="150"></el-table-column>
+      <el-table-column prop="taxIdNbr" label="纳税识别号" width="180"></el-table-column>
+      <el-table-column prop="acctPayable" label="应付科目"></el-table-column>
       <el-table-column prop="amtPayable" label="应付账款"></el-table-column>
       <el-table-column prop="amtPrePayment" label="预付账款"></el-table-column>
     </el-table>
@@ -201,7 +224,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="6" :xs="{span:24, offset:0}">
-            <el-form-item label="应付账户" prop="acctPayable">
+            <el-form-item label="应付科目" prop="acctPayable">
               <el-input v-model="form.acctPayable" size="mini" />
             </el-form-item>
           </el-col>
@@ -238,7 +261,7 @@ import
   getSupplierById,
   addSupplier,
   updateSupplier,
-  deleteSupplier
+  deleteSupplierById
 }
 from '@/api/masterdata/supplier'
 
@@ -277,11 +300,30 @@ export default {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ]
-      }
+      },
+      // 当前选择行
+      currentRow: null
     }
   },
   created () {
     this.getList()
+  },
+  computed: {
+    isSelected () {
+      if (this.currentRow != null) {
+        return true
+      } else {
+        return false
+      }
+    }
+  },
+  filters: {
+    taxableFilter: (value) => {
+      return value ? '是' : '否'
+    },
+    taxinFilter: (value) => {
+      return value ? '是' : '否'
+    }
   },
   methods: {
     /** 查询供应商列表 */
@@ -294,7 +336,8 @@ export default {
     },
     /** 搜索 */
     handleQuery () {
-
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 新增按钮操作 */
     handleAdd () {
@@ -302,6 +345,30 @@ export default {
       this.reset()
       this.open = true
       this.title = '新增供应商'
+    },
+    /** 修改按钮操作 */
+    handleUpdate () {
+      this.reset()
+      const id = this.currentRow.id
+      getSupplierById(id).then(response => {
+        this.form = response.data
+        this.open = true
+        this.title = '修改供应商'
+      })
+    },
+    /** 删除按钮操作 */
+    handleDelete () {
+      const id = this.currentRow.id
+      this.$confirm('是否确定删除供应商"' + this.currentRow.name + '"的数据项?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        return deleteSupplierById(id)
+      }).then(() => {
+        this.getList()
+        this.msgSuccess('删除成功')
+      }).catch(function() {})
     },
     /** 表单重置 */
     reset () {
@@ -312,6 +379,7 @@ export default {
         number: '',
         name: ''
       }
+      this.resetForm('form')
     },
     /** 取消对话框 */
     cancel () {
@@ -337,10 +405,21 @@ export default {
               }
             })
           } else {            // 修改
-            
+            updateSupplier(this.form).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess('修改成功')
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
           }
         }
       })
+    },
+    handleCurrentChange (val) {
+      this.currentRow = val
     }
   }
 }
