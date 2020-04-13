@@ -52,6 +52,7 @@
       :data='supplierList'
       row-key="id"
       border
+      stripe
       highlight-current-row
       @current-change='handleCurrentChange'
       size='mini'
