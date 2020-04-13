@@ -138,6 +138,21 @@
 	padding-left: 15px;
 	margin-bottom: 10px;
 }
+
+/* 当前行高亮背景颜色 */
+.el-table__body tr.current-row > td {
+	background-color: #74b9ff;
+}
+
+/* 当前行(striped)高亮背景颜色 */
+.el-table--striped .el-table__body tr.el-table__row--striped.current-row td {
+	background-color: #74b9ff;
+}
+
+/* 表格Hover背景颜色 */
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+	background-color: #74b9ff;
+}
   
 /* text color */
 .text-navy {
