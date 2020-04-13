@@ -80,6 +80,19 @@ export const constantRoutes = [
         meta: { title: '首页', icon: 'dashboard', noCache: true, affix: true } // affix: 若为true则在tagsView中始终显示
       }
     ]
+  },
+  {
+    path: '/dict',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'type/data/:dictId(\\d+)',
+        component: () => import('@/views/system/dict/data'),
+        name: 'Data',
+        meta: { title: '字典数据', icon: '' }
+      }
+    ]
   }
   // {
   //   path: '/masterdata/supplier',
