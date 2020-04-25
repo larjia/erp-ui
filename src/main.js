@@ -11,7 +11,7 @@ import '@/assets/styles/ruoyi.scss' // ruoyi css
 import App from './App.vue'
 import router from './router'
 import store from './store'
-// import permission from './directive/permission'
+import permission from './directive/permission'
 
 import '@/assets/icons' // icon
 import './permission' // permission control
@@ -44,7 +44,7 @@ Vue.prototype.msgInfo = function (msg) {
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
 
-// Vue.use(permission)
+Vue.use(permission)
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
