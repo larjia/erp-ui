@@ -40,6 +40,7 @@
           <el-button type="success" icon="el-icon-edit" size="mini" 
             :disabled="!isSelected"
             @click="handleUpdate"
+            v-hasPermi="['system:dict:edit']"
           >修改</el-button>
           <el-button type="danger" icon="el-icon-delete" size="mini" 
             :disabled="!isSelected"
