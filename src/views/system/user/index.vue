@@ -21,7 +21,7 @@
             :filter-node-method="filterNode"
             ref="tree"
             default-expand-all
-            @node-clide="handleNodeClick"
+            @node-click="handleNodeClick"
           />
         </div>
       </el-col>
@@ -35,6 +35,7 @@
               clearable
               size="mini"
               @keyup.enter.native="handelQuery"
+              style="width:240px"
             />
           </el-form-item>
           <el-form-item label="手机号码" prop="phonenumber">
@@ -44,6 +45,7 @@
               clearable
               size="mini"
               @keyup.enter.native="handelQuery"
+              style="width:240px"
             />
           </el-form-item>
           <el-form-item label="状态" prop="status">
@@ -52,6 +54,7 @@
               placeholder="用户状态"
               clearable
               size="mini"
+              style="width:240px"
             >
               <el-option
                 v-for="dict in statusOptions"
@@ -70,6 +73,7 @@
               range-separator="-"
               start-placeholde="开始日期"
               end-placeholde="结束日期"
+              style="width:240px"
             ></el-date-picker>
           </el-form-item>
           <el-form-item>
@@ -78,7 +82,7 @@
           </el-form-item>
         </el-form>
 
-        <el-row>
+        <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
               type="primary"
@@ -95,6 +99,7 @@
               size="mini"
               @click="handleUpdate"
               v-hasPermi="['system:user:edit']"
+              :disabled="!isSelected"
             >修改</el-button>
           </el-col>
           <el-col :span="1.5">
@@ -104,6 +109,7 @@
               size="mini"
               @click="handleDelete"
               v-hasPermi="['system:user:remove']"
+              :disabled="!isSelected"
             >删除</el-button>
           </el-col>
           <el-col :span="1.5">
@@ -124,14 +130,29 @@
               v-hasPermi="['system:user:export']"
             >导出</el-button>
           </el-col>
+          <el-col :span="1.5">
+            <el-button
+              size="mini"
+              @click="handleClear"
+            >取消选择</el-button>
+          </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="userList">
-          <el-table-column label="用户编号" align="center" prop="userId" />
+        <el-table 
+          v-loading="loading" 
+          :data="userList" 
+          size="mini"
+          border
+          stripe
+          highlight-current-row
+          @current-change="handleCurrentChange"
+          ref="table"
+        >
+          <el-table-column label="用户编号" align="center" prop="userId" width="80" v-if="false"/>
           <el-table-column label="用户名称" align="center" prop="userName" :show-overflow-tooltip="true"/>
           <el-table-column label="用户昵称" align="center" prop="nickName" :show-overflow-tooltip="true" />
           <el-table-column label="部门" align="center" prop="dept.deptName" :show-overflow-tooltip="true" />
-          <el-table-column label="手机号码" align="center" prop="phonenumber" />
+          <el-table-column label="手机号码" align="center" prop="phonenumber" width="120" />
           <el-table-column label="状态" align="center">
             <template slot-scope="scope">
               <el-switch
@@ -142,7 +163,7 @@
               ></el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime">
+          <el-table-column label="创建时间" align="center" prop="createTime" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
@@ -232,14 +253,24 @@ export default {
       // 表单校验
       rules: {
 
-      }
+      },
+      currentRow: null
     }
   },
   watch: {
-
+    // 根据名称筛选部门树
+    deptName (val) {
+      this.$refs.tree.filter(val)
+    }
   },
   created () {
     this.getList()
+    this.getTreeselect()
+  },
+  computed: {
+    isSelected () {
+      return (this.currentRow == null) ? false : true
+    }
   },
   methods: {
     /** 查询用户列表 */
@@ -253,19 +284,34 @@ export default {
     },
     /** 查询部门下拉树结构 */
     getTreeselect () {
-
+      treeselect().then(response => {
+        this.deptOptions = response.data
+      })
     },
     /** 筛选节点 */
     filterNode (value, data) {
-
+      if (!value) return true
+      return data.label.toLowerCase().indexOf(value.toLowerCase()) !== -1
     },
     /** 节点单击事件 */
     handleNodeClick (data) {
-
+      this.queryParams.deptId = data.id
+      this.getList()
     },
     /** 用户状态修改 */
     handleStatusChange (row) {
-
+      let text = (row.status === '0') ? '启用' : '停用'
+      this.$confirm('确定要' + text + '用户' + row.userName + '吗?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function () {
+        return changeUserStatus(row.userId, row.status)
+      }).then(() => {
+        this.msgSuccess(text + '成功')
+      }).catch(function () {
+        row.status = (row.status === '0') ? '1' : '0'
+      })
     },
     /** 取消按钮 */
     cancel () {
@@ -326,11 +372,20 @@ export default {
     /** 提交上传文件 */
     submitFileForm () {
 
+    },
+    handleCurrentChange (val) {
+      this.currentRow = val
+    },
+    handleClear () {
+      this.$refs.table.setCurrentRow()
+      this.currentRow = null
     }
   }
 }
 </script>
 
 <style scoped>
-
+.el-form-item {
+  margin-bottom: 8px;
+}
 </style>
