@@ -27,7 +27,7 @@
       </el-col>
       <!-- 用户数据 -->
       <el-col :span="20" :xs="24">
-        <el-form :model="queryParams" ref="queryForm" :inline="true" label-width="68px">
+        <el-form :model="queryParams" ref="queryForm" :inline="true" label-width="68px" class="queryForm">
           <el-form-item label="用户名称" prop="userName">
             <el-input
               v-model="queryParams.userName"
@@ -38,9 +38,9 @@
               style="width:240px"
             />
           </el-form-item>
-          <el-form-item label="手机号码" prop="phonenumber">
+          <el-form-item label="手机号码" prop="phoneNumber">
             <el-input
-              v-model="queryParams.phonenumber"
+              v-model="queryParams.phoneNumber"
               placeholder="请输入手机号码"
               clearable
               size="mini"
@@ -114,13 +114,21 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
+              size="mini"
+              @click="handleResetPwd"
+              :disabled="!isSelected"
+              v-hasPermi="['system:user:resetPwd']"
+            >重置密码</el-button>
+          </el-col>
+          <!-- <el-col :span="1.5">
+            <el-button
               type="info"
               icon="el-icon-upload2"
               size="mini"
               @click="handleImport"
               v-hasPermi="['system:user:import']"
             >导入</el-button>
-          </el-col>
+          </el-col> -->
           <el-col :span="1.5">
             <el-button
               type="warning"
@@ -152,7 +160,7 @@
           <el-table-column label="用户名称" align="center" prop="userName" :show-overflow-tooltip="true"/>
           <el-table-column label="用户昵称" align="center" prop="nickName" :show-overflow-tooltip="true" />
           <el-table-column label="部门" align="center" prop="dept.deptName" :show-overflow-tooltip="true" />
-          <el-table-column label="手机号码" align="center" prop="phonenumber" width="120" />
+          <el-table-column label="手机号码" align="center" prop="phoneNumber" width="120" />
           <el-table-column label="状态" align="center">
             <template slot-scope="scope">
               <el-switch
@@ -181,13 +189,136 @@
     </el-row>
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px">
+    <el-dialog :title="title" :visible.sync="open" width="750px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" size="mini" label-width="90px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="用户姓名" prop="nickName">
+              <el-input v-model="form.nickName" placeholder="请输入用户姓名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门" prop="deptId">
+              <treeselect v-model="form.deptId" :options="deptOptions" placeholder="请选择部门" class="tree-select" />
+            </el-form-item>
+          </el-col>
 
+          <el-col :span="12">
+            <el-form-item label="手机号码" prop="phoneNumber">
+              <el-input v-model="form.phoneNumber" placeholder="请输入手机号码" maxlength="11"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="邮箱" prop="email" size="mini">
+              <el-input v-model="form.email" placeholder="请输入邮箱" />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item v-if="form.userId == undefined" label="用户名" prop="userName">
+              <el-input v-model="form.userName" placeholder="请输入用户名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item v-if="form.userId == undefined" label="密码" prop="password">
+              <el-input v-model="form.password" placeholder="请输入密码" type="password" />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="性别">
+              <el-select v-model="form.gender" placeholder="请选择" style="width:100%">
+                <el-option
+                  v-for="dict in genderOptions"
+                  :key="dict.dictValue"
+                  :label="dict.dictLabel"
+                  :value="dict.dictValue"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态">
+              <el-radio-group v-model="form.status">
+                <el-radio
+                  v-for="dict in statusOptions"
+                  :key="dict.dictValue"
+                  :label="dict.dictValue"
+                >{{ dict.dictLabel }}</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="岗位">
+              <el-select v-model="form.positionIds" multiple placeholder="请选择" style="width:100%">
+                <el-option
+                  v-for="item in positionOptions"
+                  :key="item.positionId"
+                  :label="item.positionName"
+                  :value="item.positionId"
+                  :disabled="item.status == 1"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="角色">
+              <el-select v-model="form.roleIds" multiple placeholder="请选择" style="width:100%">
+                <el-option
+                  v-for="item in roleOptions"
+                  :key="item.roleId"
+                  :label="item.roleName"
+                  :value="item.roleId"
+                  :disabled="item.status == 1"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="24">
+            <el-form-item label="备注">
+              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-button @click="cancel">取消</el-button>
+      </div>
     </el-dialog>
 
     <!-- 用户导入对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px">
-
+      <el-upload
+        ref="upload"
+        :limit="1"
+        accept=".xlsx, .xls"
+        :headers="upload.headers"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport"
+        :disabled="upload.isUploading"
+        :on-progress="handleFileUploadProgress"
+        :on-success="handleFileSuccess"
+        :auto-upload="false"
+        drag
+      >
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">
+          将文件拖到此处,或<em>点击上传</em>
+        </div>
+        <div class="el-upload__tip" slot="tip">
+          <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的用户数据
+          <el-link type="info" style="font-size:12px" @click="importTemplate">下载模板</el-link>
+        </div>
+        <div class="el-upload__tip" style="color:red" slot="tip">提示: 仅允许导入xls或者xlsx格式文件</div>
+      </el-upload>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFileForm">确定</el-button>
+        <el-button @click="upload.open = false">取消</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -228,7 +359,7 @@ export default {
       // 性别状态字典
       genderOptions: [],
       // 岗位选项
-      postOptions: [],
+      positionOptions: [],
       // 角色选项
       roleOptions: [],
       // 表单参数
@@ -252,7 +383,34 @@ export default {
       },
       // 表单校验
       rules: {
-
+        userName: [
+          { required: true, message: '用户名不能为空', trigger: 'blur' }
+        ],
+        nickName: [
+          { required: true, message: '用户姓名不能为空', trigger: 'blur' }
+        ],
+        deptId: [
+          { required: true, message: '部门不能为空', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '密码不能为空', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '邮箱不能为空', trigger: 'blur' },
+          {
+            type: 'email',
+            message: '请输入正确的邮箱地址',
+            trigger: ['blur', 'change']
+          }
+        ],
+        phoneNumber: [
+          { required: true, message: '手机号码不能为空', trigger: 'blur' },
+          {
+            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+            message: '请输入正确的手机号码',
+            trigger: 'blur'
+          }
+        ]
       },
       currentRow: null
     }
@@ -266,11 +424,14 @@ export default {
   created () {
     this.getList()
     this.getTreeselect()
-    this.getDicts('sys_normal_disabled').then(response => {
+    this.getDicts('sys_normal_disable').then(response => {
       this.statusOptions = response.data
     })
     this.getDicts('sys_user_gender').then(response => {
       this.genderOptions = response.data
+    })
+    this.getConfigKey("sys.user.initPassword").then(response => {
+      this.initPassword = response.msg
     })
   },
   computed: {
@@ -321,63 +482,163 @@ export default {
     },
     /** 取消按钮 */
     cancel () {
-
+      this.open = false
+      this.reset()
     },
     /** 表单重置 */
     reset () {
-
+      this.form = {
+        userId: undefined,
+        deptId: undefined,
+        userName: undefined,
+        nickName: undefined,
+        password: undefined,
+        phoneNumber: undefined,
+        email: undefined,
+        gender: undefined,
+        status: '0',
+        remark: undefined,
+        positionIds: [],
+        roleIds: []
+      }
+      this.resetForm('form')
     },
     /** 搜索按钮操作 */
     handleQuery () {
-
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery () {
-
+      this.dateRange = []
+      this.resetForm("queryForm")
+      this.handleQuery()
     },
     /** 新增按钮操作 */
     handleAdd () {
-
+      this.reset()
+      this.getTreeselect()
+      getUser().then(response => {
+        this.positionOptions = response.positions
+        this.roleOptions = response.roles
+        this.open = true
+        this.title = "新增用户"
+        this.form.password = this.initPassword
+      })
     },
     /** 修改按钮操作 */
-    handleUpdate (row) {
-
+    handleUpdate () {
+      this.reset()
+      this.getTreeselect()
+      const userId = this.currentRow.userId
+      getUser(userId).then(response => {
+        this.form = response.data
+        this.positionOptions = response.positions
+        this.roleOptions = response.roles
+        this.form.positionIds = response.positionIds
+        this.form.roleIds = response.roleIds
+        this.open = true
+        this.title = '修改用户'
+        this.form.password = ''
+      })
     },
     /** 重置密码按钮操作 */
-    handleResetPwd (row) {
-
+    handleResetPwd () {
+      this.$prompt('请输入"' + this.currentRow.userName + '"的新密码', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(({ value }) => {
+        resetUserPwd(this.currentRow.userId, value).then(response => {
+          if (response.code === 200) {
+            this.msgSuccess('修改成功,新密码是: ' + value)
+          } else {
+            this.msgError(response.msg)
+          }
+        })
+      }).catch(() => {})
     },
     /** 提交按钮操作 */
     submitForm () {
-
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          if (this.form.userId != undefined) {
+            updateUser(this.form).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess('修改成功')
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
+          } else {
+            addUser(this.form).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess('新增成功')
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
+          }
+        }
+      })
     },
     /** 删除按钮操作 */
-    handleDelete (row) {
-
+    handleDelete () {
+      const userId = this.currentRow.userId
+      const userName = this.currentRow.userName
+      this.$confirm('是否确认删除用户名为"' + userName + '"的数据项?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function () {
+        return delUser(userId)
+      }).then(() => {
+        this.getList()
+        this.msgSuccess('删除成功')
+      }).catch(function () {})
     },
     /** 导出按钮操作 */
     handleExport () {
-
+      const queryParams = this.queryParams
+      this.$confirm('是否确定导出所有用户数据项目?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function () {
+        return exportUser(queryParams)
+      }).then(response => {
+        this.download(response.msg)
+      }).catch(function () {})
     },
     /** 导入按钮操作 */
     handleImport () {
-
+      this.upload.title = '用户导入'
+      this.upload.open = true
     },
     /** 下载模板操作 */
     importTemplate () {
-
+      importTemplate().then(response => {
+        this.download(response.msg)
+      })
     },
     /** 文件上传中处理 */
     handleFileUploadProgress (event, file, fileList) {
-
+      this.upload.isUploading = true
     },
     /** 文件上传成功处理 */
-    handleFileSucess (response, file, fileList) {
-
+    handleFileSuccess (response, file, fileList) {
+      this.upload.open = false
+      this.upload.isUploading = false
+      this.$refs.upload.clearFiles()
+      this.$alert(response.msg, '导入结果', { dangerouslyUseHTMLString: true })
+      this.getList()
     },
     /** 提交上传文件 */
     submitFileForm () {
-
+      this.$refs.upload.submit()
     },
     handleCurrentChange (val) {
       this.currentRow = val
@@ -390,8 +651,21 @@ export default {
 }
 </script>
 
-<style scoped>
-.el-form-item {
+<style lang="scss" scoped>
+.queryForm .el-form-item {
   margin-bottom: 8px;
 }
+
+.tree-select {
+  ::v-deep {
+    .vue-treeselect__control {
+      height: 30px;
+    }
+
+    .vue-treeselect__placeholder, .vue-treeselect__single-value {
+      line-height: 30px;
+    }
+  }
+}
+
 </style>
