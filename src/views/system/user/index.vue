@@ -226,7 +226,7 @@ export default {
       // 状态数据字典
       statusOptions: [],
       // 性别状态字典
-      sexOptions: [],
+      genderOptions: [],
       // 岗位选项
       postOptions: [],
       // 角色选项
@@ -266,6 +266,12 @@ export default {
   created () {
     this.getList()
     this.getTreeselect()
+    this.getDicts('sys_normal_disabled').then(response => {
+      this.statusOptions = response.data
+    })
+    this.getDicts('sys_user_gender').then(response => {
+      this.genderOptions = response.data
+    })
   },
   computed: {
     isSelected () {
