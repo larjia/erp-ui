@@ -157,8 +157,8 @@
           ref="table"
         >
           <el-table-column label="用户编号" align="center" prop="userId" width="80" v-if="false"/>
-          <el-table-column label="用户名称" align="center" prop="userName" :show-overflow-tooltip="true"/>
-          <el-table-column label="用户昵称" align="center" prop="nickName" :show-overflow-tooltip="true" />
+          <el-table-column label="用户名" align="center" prop="userName" :show-overflow-tooltip="true"/>
+          <el-table-column label="姓名" align="center" prop="nickName" :show-overflow-tooltip="true" />
           <el-table-column label="部门" align="center" prop="dept.deptName" :show-overflow-tooltip="true" />
           <el-table-column label="手机号码" align="center" prop="phoneNumber" width="120" />
           <el-table-column label="状态" align="center">
@@ -387,7 +387,7 @@ export default {
           { required: true, message: '用户名不能为空', trigger: 'blur' }
         ],
         nickName: [
-          { required: true, message: '用户姓名不能为空', trigger: 'blur' }
+          { required: true, message: '姓名不能为空', trigger: 'blur' }
         ],
         deptId: [
           { required: true, message: '部门不能为空', trigger: 'blur' }
@@ -589,7 +589,8 @@ export default {
     handleDelete () {
       const userId = this.currentRow.userId
       const userName = this.currentRow.userName
-      this.$confirm('是否确认删除用户名为"' + userName + '"的数据项?', '警告', {
+      const nickName = this.currentRow.nickName
+      this.$confirm('是否确认删除用户? ' + userName + nickName, '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
