@@ -1,6 +1,6 @@
 <template>
   <el-form ref="form" :model="user" :rules="rules" label-width="80px">
-    <el-form-item label="用户姓名" prop="nickName">
+    <el-form-item label="姓名" prop="nickName">
       <el-input v-model="user.nickName" />
     </el-form-item>
     <el-form-item label="手机号码" prop="phoneNumber">
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { updateUserPwd } from '@/api/system/user'
+import { updateUserProfile } from '@/api/system/user'
 
 export default {
   props: {

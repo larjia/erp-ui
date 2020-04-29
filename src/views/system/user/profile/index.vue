@@ -12,7 +12,7 @@
             </div>
             <ul class="list-group list-group-striped">
               <li class="list-group-item">
-                <svg-icon icon-class="user" />用户姓名
+                <svg-icon icon-class="user" />用户名
                 <div class="pull-right">{{ user.userName }}</div>
               </li>
               <li class="list-group-item">
@@ -40,15 +40,57 @@
         </el-card>
       </el-col>
       <el-col :span="18" :xs="24">
-        
+        <el-card>
+          <div slot="hader" class="clearfix">
+            <span>基本资料</span>
+          </div>
+          <el-tabs v-model="activeTab">
+            <el-tab-pane label="基本资料" name="userinfo">
+              <userInfo :user='user' />
+            </el-tab-pane>
+            <el-tab-pane label="修改密码" name="resetPwd">
+              <resetPwd :user='user' />
+            </el-tab-pane>
+          </el-tabs>
+        </el-card>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+import userAvatar from './userAvatar'
+import userInfo from './userInfo'
+import resetPwd from './resetPwd'
+import { getUserProfile } from '@/api/system/user'
+
 export default {
-  name: 'Profile'
+  name: 'Profile',
+  components: {
+    userAvatar,
+    userInfo,
+    resetPwd
+  },
+  data () {
+    return {
+      user: {},
+      roleGroup: {},
+      positionGroup: {},
+      activeTab: 'userinfo'
+    }
+  },
+  created () {
+    this.getUser()
+  },
+  methods: {
+    getUser () {
+      getUserProfile().then(response => {
+        this.user = response.data
+        this.roleGroup = response.roleGroup
+        this.positionGroup = response.positionGroup
+      })
+    }
+  }
 }
 </script>
 
