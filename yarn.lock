@@ -8514,7 +8514,7 @@ vm-browserify@^1.0.1:
 
 vue-cropper@^0.5.2:
   version "0.5.2"
-  resolved "https://registry.npm.taobao.org/vue-cropper/download/vue-cropper-0.5.2.tgz?cache=0&sync_timestamp=1584367807116&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-cropper%2Fdownload%2Fvue-cropper-0.5.2.tgz#069b2ffe5336b3f800d3049df2b0746263bd8642"
+  resolved "https://registry.npm.taobao.org/vue-cropper/download/vue-cropper-0.5.2.tgz?cache=0&sync_timestamp=1584367646279&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-cropper%2Fdownload%2Fvue-cropper-0.5.2.tgz#069b2ffe5336b3f800d3049df2b0746263bd8642"
   integrity sha1-Bpsv/lM2s/gA0wSd8rB0YmO9hkI=
 
 vue-eslint-parser@^7.0.0:
