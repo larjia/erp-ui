@@ -193,7 +193,7 @@
       <el-form ref="form" :model="form" :rules="rules" size="mini" label-width="90px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="用户姓名" prop="nickName">
+            <el-form-item label="姓名" prop="nickName">
               <el-input v-model="form.nickName" placeholder="请输入用户姓名" />
             </el-form-item>
           </el-col>
